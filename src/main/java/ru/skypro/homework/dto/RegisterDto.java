@@ -1,6 +1,7 @@
 package ru.skypro.homework.dto;
 
 import lombok.Data;
+import ru.skypro.homework.model.Role;
 
 @Data
 public class RegisterDto {
@@ -10,5 +11,5 @@ public class RegisterDto {
     private String firstName;
     private String lastName;
     private String phone;
-    private RoleDto role;
+    private Role role;
 }
