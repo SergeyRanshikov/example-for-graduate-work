@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skypro.homework.dto.UpdateUser;
-import ru.skypro.homework.dto.NewPassword;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +26,7 @@ public class UserController {
 
 
     @PostMapping("/set_password")
-    public ResponseEntity<?> setPassword(@RequestBody NewPassword newPasswordDto) {
+    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDto newPasswordDto) {
         try {
             userService.updatePassword(newPasswordDto.getCurrentPassword(), newPasswordDto.getNewPassword());
             return ResponseEntity.ok().body("Password updated successfully");
@@ -36,15 +36,15 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> getUser() {
-        User user = userService.getUserDetails();
+    public ResponseEntity<UserDto> getUser() {
+        UserDto user = userService.getUserDetails();
         return ResponseEntity.ok(user);
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser) {
+    public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUser) {
         try {
-            UpdateUser updatedUser = userService.updateUser(updateUser);
+            UpdateUserDto updatedUser = userService.updateUser(updateUser);
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
             return ResponseEntity.status(401).build();

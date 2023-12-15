@@ -1,11 +1,11 @@
 package ru.skypro.homework.service;
 
-import ru.skypro.homework.dto.Comment;
-import ru.skypro.homework.dto.Comments;
-import ru.skypro.homework.dto.CreateOrUpdateComment;
+import ru.skypro.homework.dto.CommentDto;
+import ru.skypro.homework.dto.CommentsDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 
 public interface CommentService {
-    Comments getComments(int adId) throws Exception;
-    Comment addComment(int adId, CreateOrUpdateComment commentDto) throws Exception;
+    CommentsDto getComments(int adId) throws Exception;
+    CommentDto addComment(int adId, CreateOrUpdateCommentDto commentDto) throws Exception;
     void deleteComment(int adId, int commentId) throws Exception;
-    Comment updateComment(int adId, int commentId, CreateOrUpdateComment commentDto) throws Exception;}
+    CommentDto updateComment(int adId, int commentId, CreateOrUpdateCommentDto commentDto) throws Exception;}

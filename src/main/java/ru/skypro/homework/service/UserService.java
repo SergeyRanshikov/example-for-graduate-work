@@ -1,15 +1,14 @@
 package ru.skypro.homework.service;
 
-import org.hibernate.sql.Update;
-import ru.skypro.homework.dto.User;
-import ru.skypro.homework.dto.UpdateUser;
+import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.dto.UpdateUserDto;
 
 import java.io.IOException;
 
 public interface UserService {
-    User getUserDetails();
+    UserDto getUserDetails();
 
-    UpdateUser updateUser(UpdateUser updateUserInfo) throws Exception;
+    UpdateUserDto updateUser(UpdateUserDto updateUserInfo) throws Exception;
 
     void updatePassword(String currentPassword, String newPassword) throws Exception;
 

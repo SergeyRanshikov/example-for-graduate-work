@@ -2,13 +2,14 @@ package ru.skypro.homework.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.Ad;
-import ru.skypro.homework.dto.Ads;
-import ru.skypro.homework.dto.CreateOrUpdateAd;
-import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.service.AdService;
 
 @Slf4j
@@ -20,10 +21,28 @@ public class AdController {
 
     private final AdService adService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAd> getAdById(@PathVariable int id) {
+    @GetMapping
+    public ResponseEntity<AdsDto> getAllAds() {
+        AdsDto adsDto = adService.getAllAds();
+        return ResponseEntity.ok(adsDto);
+    }
+
+    @PostMapping
+    public ResponseEntity<AdDto> createAd(@ModelAttribute CreateOrUpdateAdDto createOrUpdateAdDto,
+                                          @RequestParam("image") MultipartFile image) {
         try {
-            ExtendedAd ad = adService.getAdById(id);
+            byte[] imageBytes = image.getBytes();
+            AdDto adDto = adService.createAd(createOrUpdateAdDto, imageBytes);
+            return ResponseEntity.ok(adDto);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ExtendedAdDto> getAdById(@PathVariable int id) {
+        try {
+            ExtendedAdDto ad = adService.getAdById(id);
             return ResponseEntity.ok(ad);
         } catch (Exception e) {
             return ResponseEntity.status(404).build();
@@ -41,9 +60,9 @@ public class AdController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Ad> updateAd(@PathVariable int id, @RequestBody CreateOrUpdateAd adDto) {
+    public ResponseEntity<AdDto> updateAd(@PathVariable int id, @RequestBody CreateOrUpdateAdDto adDto) {
         try {
-            Ad updatedAd = adService.updateAd(id, adDto);
+            AdDto updatedAd = adService.updateAd(id, adDto);
             return ResponseEntity.ok(updatedAd);
         } catch (Exception e) {
             return ResponseEntity.status(404).build();
@@ -51,9 +70,9 @@ public class AdController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Ads> getAdsForCurrentUser() {
+    public ResponseEntity<AdsDto> getAdsForCurrentUser() {
         try {
-            Ads ads = adService.getAdsForCurrentUser();
+            AdsDto ads = adService.getAdsForCurrentUser();
             return ResponseEntity.ok(ads);
         } catch (Exception e) {
             return ResponseEntity.status(401).build();

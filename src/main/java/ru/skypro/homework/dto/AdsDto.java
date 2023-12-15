@@ -1,11 +1,11 @@
 package ru.skypro.homework.dto;
-
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class Comments {
-    private int count;
-    private List<Comment> result;
+public class AdsDto {
+    private Integer count;
+    private List<AdDto> results;
+
 }
