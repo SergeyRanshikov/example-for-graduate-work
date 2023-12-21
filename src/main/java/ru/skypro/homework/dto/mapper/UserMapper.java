@@ -19,6 +19,45 @@ public class UserMapper {
         return dto;
     }
 
+    public static User userDtoToUser(UserDto dto) {
+        User user = new User();
+        user.setId(dto.getId());
+        user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPhone(dto.getPhone());
+        user.setRole(dto.getRole());
+        user.setImage(dto.getImage());
+        return user;
+    }
+
+
+
+    public static void updateUserFromDto(UpdateUserDto dto, User user) {
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPhone(dto.getPhone());
+    }
+
+    public static UpdateUserDto userToUpdateUserDto(User user) {
+        UpdateUserDto dto = new UpdateUserDto();
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setPhone(user.getPhone());
+        return dto;
+    }
+    public static RegisterDto userToRegisterDto(User user) {
+        RegisterDto dto = new RegisterDto();
+        dto.setEmail(user.getEmail()); // Используем email в качестве username для регистрации
+        // dto.setPassword(user.getPassword()); // Не следует передавать пароль в DTO
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setPhone(user.getPhone());
+        dto.setRole(user.getRole());
+        return dto;
+    }
+
+
     public static User registerDtoToUser(RegisterDto dto) {
         User user = new User();
         user.setEmail(dto.getEmail());
@@ -30,9 +69,6 @@ public class UserMapper {
         return user;
     }
 
-    public static void updateUserFromDto(UpdateUserDto dto, User user) {
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setPhone(dto.getPhone());
-    }
+
+
 }
