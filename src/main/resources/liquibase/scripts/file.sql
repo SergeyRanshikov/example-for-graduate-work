@@ -28,3 +28,10 @@ CREATE TABLE users (
     image VARCHAR,
     role VARCHAR, --enum Role
 );
+
+CREATE TABLE image (
+    id SERIAL PRIMARY KEY,
+    data oid,
+    file_size BIGINT,
+    media_type VARCHAR
+);

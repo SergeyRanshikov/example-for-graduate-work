@@ -1,16 +1,26 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.service.AdService;
+
+import java.io.IOException;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -21,72 +31,218 @@ public class AdController {
 
     private final AdService adService;
 
+    @Operation(
+            tags = "Объявления",
+            summary = "Получение всех объявлений, находящихся в базе данных",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Коллекция всех объявлений, находящихся в базе данных",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = AdsDto.class)
+                            )
+                    )
+            }
+    )
     @GetMapping
     public ResponseEntity<AdsDto> getAllAds() {
-        AdsDto adsDto = adService.getAllAds();
-        return ResponseEntity.ok(adsDto);
+        return ResponseEntity.ok(adService.getAllAds());
     }
 
-    @PostMapping
-    public ResponseEntity<AdDto> createAd(@ModelAttribute CreateOrUpdateAdDto createOrUpdateAdDto,
-                                          @RequestParam("image") MultipartFile image) {
-        try {
-            byte[] imageBytes = image.getBytes();
-            AdDto adDto = adService.createAd(createOrUpdateAdDto, imageBytes);
-            return ResponseEntity.ok(adDto);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    @Operation(
+            tags = "Объявления",
+            summary = "Создание объявления",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Объявление успешно создано",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = AdDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
+                                       @RequestPart("image") MultipartFile image,
+                                       Authentication authentication) throws IOException {
+        adService.addAd(properties, image, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(
+            tags = "Объявления",
+            summary = "Получение информации об объявлении, найденному по переданному идентификатору",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Информация об объявлении",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ExtendedAdDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
+                    )
+            }
+    )
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAdDto> getAdById(@PathVariable int id) {
-        try {
-            ExtendedAdDto ad = adService.getAdById(id);
-            return ResponseEntity.ok(ad);
-        } catch (Exception e) {
-            return ResponseEntity.status(404).build();
-        }
+    public ResponseEntity<ExtendedAdDto> getAdById(@PathVariable("id") Integer id, Authentication authentication) {
+        return ResponseEntity.ok(adService.getAdById(id, authentication));
     }
 
+    @Operation(
+            tags = "Объявления",
+            summary = "Удаление объявления, найденному по переданному идентификатору",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Объявление успешно удалено",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Нет доступа к операции",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAd(@PathVariable int id) {
+    public ResponseEntity<Void> deleteAd(@PathVariable("id") Integer id, Authentication authentication) {
         try {
-            adService.deleteAd(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(404).build();
+            adService.deleteAd(id, authentication);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (HttpClientErrorException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
+    @Operation(
+            tags = "Объявления",
+            summary = "Обновление информации об объявлении, найденному по переданному идентификатору",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Информация об объявлении обновлена",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = AdDto.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Нет доступа к операции",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
+                    )
+            }
+    )
     @PatchMapping("/{id}")
-    public ResponseEntity<AdDto> updateAd(@PathVariable int id, @RequestBody CreateOrUpdateAdDto adDto) {
+    public ResponseEntity<AdDto> updateAd(@PathVariable("id") Integer id,
+                                           @RequestBody CreateOrUpdateAdDto ad, Authentication authentication) {
         try {
-            AdDto updatedAd = adService.updateAd(id, adDto);
-            return ResponseEntity.ok(updatedAd);
-        } catch (Exception e) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.ok(adService.updateAd(id, ad, authentication));
+        } catch (HttpClientErrorException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
+    @Operation(
+            tags = "Объявления",
+            summary = "Получение всех объявлений авторизованного пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Коллекция объявлений авторизованного пользователя",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = AdsDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
     @GetMapping("/me")
-    public ResponseEntity<AdsDto> getAdsForCurrentUser() {
-        try {
-            AdsDto ads = adService.getAdsForCurrentUser();
-            return ResponseEntity.ok(ads);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).build();
-        }
+    public AdsDto getAdsMe(Authentication authentication) {
+        return adService.getMyAds(authentication);
     }
 
+    @Operation(
+            tags = "Объявления",
+            summary = "Обновление картинки объявления, найденного по переданному идентификатору",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Картинка обновлена",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Нет доступа к операции",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Объявления с переданным идентификатором не существует в базе данных",
+                            content = @Content()
+                    )
+            }
+    )
     @PatchMapping("/{id}/image")
-    public ResponseEntity<Void> updateAdImage(@PathVariable int id, @RequestParam("image") MultipartFile image) {
+    public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
+                                            @RequestBody MultipartFile image,
+                                            Authentication authentication) throws IOException {
         try {
-            byte[] imageBytes = image.getBytes();
-            adService.updateAdImage(id, imageBytes);
+            adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(404).build();
+        } catch (HttpClientErrorException.Forbidden e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (HttpClientErrorException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

@@ -20,7 +20,7 @@ public class CommentMapper {
         dto.setPk(comment.getId());
         dto.setAuthor(comment.getAuthor().getId());
         dto.setAuthorFirstName(comment.getAuthor().getFirstName());
-        dto.setAuthorImage(comment.getAuthor().getImage());
+        dto.setAuthorImage(comment.getAuthor().getImageUrl());
         dto.setCreatedAt(comment.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         dto.setText(comment.getText());
         return dto;

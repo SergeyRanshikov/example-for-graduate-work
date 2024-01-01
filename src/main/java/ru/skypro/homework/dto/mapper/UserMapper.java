@@ -15,7 +15,7 @@ public class UserMapper {
         dto.setLastName(user.getLastName());
         dto.setPhone(user.getPhone());
         dto.setRole(user.getRole());
-        dto.setImage(user.getImage());
+        dto.setImage(user.getImageUrl());
         return dto;
     }
 
@@ -27,7 +27,7 @@ public class UserMapper {
         user.setLastName(dto.getLastName());
         user.setPhone(dto.getPhone());
         user.setRole(dto.getRole());
-        user.setImage(dto.getImage());
+        user.setImageUrl(dto.getImage());
         return user;
     }
 
@@ -48,7 +48,7 @@ public class UserMapper {
     }
     public static RegisterDto userToRegisterDto(User user) {
         RegisterDto dto = new RegisterDto();
-        dto.setEmail(user.getEmail()); // Используем email в качестве username для регистрации
+        dto.setUsername(user.getEmail()); // Используем email в качестве username для регистрации
         // dto.setPassword(user.getPassword()); // Не следует передавать пароль в DTO
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
@@ -60,7 +60,7 @@ public class UserMapper {
 
     public static User registerDtoToUser(RegisterDto dto) {
         User user = new User();
-        user.setEmail(dto.getEmail());
+        user.setEmail(dto.getUsername());
         user.setPassword(dto.getPassword());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
@@ -68,7 +68,4 @@ public class UserMapper {
         user.setRole(dto.getRole());
         return user;
     }
-
-
-
 }

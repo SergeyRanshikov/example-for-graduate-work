@@ -1,16 +1,24 @@
 package ru.skypro.homework.service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.model.User;
 
 import java.io.IOException;
 
 public interface UserService {
-    UserDto getUserDetails();
+    UserDto getUserInfo(Authentication authentication);
 
-    UpdateUserDto updateUser(UpdateUserDto updateUserInfo) throws Exception;
+    UserDto updateUser(UpdateUserDto updateUserDto, Authentication authentication);
 
-    void updatePassword(String currentPassword, String newPassword) throws Exception;
+    void setPassword(NewPasswordDto newPasswordDto, Authentication authentication);
 
-    void updateUserImage(byte[] imageBytes) throws IOException;
+    void updateUserImage(MultipartFile image, Authentication authentication) throws IOException;
+
+    User findByEmail(String email);
+
+    User createUser(User user);
 }

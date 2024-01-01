@@ -19,7 +19,7 @@ public class AdMapper {
         AdDto dto = new AdDto();
         dto.setPk(ad.getId());
         dto.setAuthor(ad.getAuthor().getId());
-        dto.setImage(ad.getImage());
+        dto.setImage(ad.getImageUrl());
         dto.setPrice(ad.getPrice());
         dto.setTitle(ad.getTitle());
         return dto;
@@ -30,7 +30,7 @@ public class AdMapper {
         ad.setId(dto.getPk());
         ad.setId(dto.getPk());
         ad.setAuthor(userRepository.findById(dto.getAuthor()).orElse(null));
-        ad.setImage(dto.getImage());
+        ad.setImageUrl(dto.getImage());
         ad.setPrice(dto.getPrice());
         ad.setTitle(dto.getTitle());
         return ad;
@@ -60,7 +60,7 @@ public class AdMapper {
         dto.setAuthorLastName(ad.getAuthor().getLastName());
         dto.setDescription(ad.getDescription());
         dto.setEmail(ad.getAuthor().getEmail());
-        dto.setImage(ad.getImage());
+        dto.setImage(ad.getImageUrl());
         dto.setPhone(ad.getAuthor().getPhone());
         dto.setPrice(ad.getPrice());
         dto.setTitle(ad.getTitle());
@@ -71,7 +71,7 @@ public class AdMapper {
         ad.setTitle(dto.getTitle());
         ad.setPrice(dto.getPrice());
         ad.setDescription(dto.getDescription());
-        ad.setImage(dto.getImage());
+        ad.setImageUrl(dto.getImage());
         return ad;
     }
 }

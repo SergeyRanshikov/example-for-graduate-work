@@ -1,10 +1,13 @@
 package ru.skypro.homework.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -16,15 +19,18 @@ public class User {
     private String firstName;
     private String lastName;
     private String phone;
-    private String image;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    private String imageUrl;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch=FetchType.LAZY)
     private List<Ad> ads;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch=FetchType.LAZY)
     private List<Comment> comments;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
+    private Image image;
 }
