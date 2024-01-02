@@ -2,16 +2,17 @@
 
 -- changeset: User1
 CREATE TABLE ad (
-    id BIGINT PRIMARY KEY,
-    title VARCHAR,
+    id SERIAL PRIMARY KEY,
     price INT,
-    decription VARCHAR,
+    title VARCHAR,
+    description VARCHAR,
     image_url VARCHAR,
-    author_id INT
+    author_id INT,
+    image_id INT
 );
 
 CREATE TABLE comments (
-    id BIGINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     text VARCHAR,
     created_at INT,
     author_id INT,
@@ -19,14 +20,22 @@ CREATE TABLE comments (
 );
 
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     email VARCHAR,
     password VARCHAR,
     first_name VARCHAR,
     last_name VARCHAR,
     phone_number VARCHAR,
-    image VARCHAR,
     role VARCHAR, --enum Role
+    image_url VARCHAR,
+    image_id INT
+);
+
+CREATE TABLE image (
+    id SERIAL PRIMARY KEY,
+    data oid,
+    file_size BIGINT,
+    media_type VARCHAR
 );
 
 CREATE TABLE image (

@@ -1,5 +1,7 @@
 package ru.skypro.homework.model;
 
+import liquibase.pro.packaged.I;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,6 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "comments")
@@ -15,7 +18,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String text;
-    private LocalDateTime createdAt;
+    private Integer createdAt;
 
     @ManyToOne
     @JoinColumn(name = "author_id")

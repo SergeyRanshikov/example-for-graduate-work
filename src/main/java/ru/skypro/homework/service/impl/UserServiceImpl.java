@@ -8,7 +8,7 @@ import ru.skypro.homework.config.UserDetailsManagerImpl;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.dto.UpdateUserDto;
-import ru.skypro.homework.dto.mapper.UserMapper;
+import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.Image;
 import ru.skypro.homework.model.User;

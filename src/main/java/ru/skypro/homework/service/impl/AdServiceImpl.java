@@ -9,7 +9,7 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.dto.mapper.AdMapper;
+import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.exception.AccessDeniedException;
 import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.model.Ad;
@@ -68,7 +68,7 @@ public class AdServiceImpl implements AdService {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         Image deletedImage = imageService.findById(deletedAd.getImage().getId());
         String deletedAdAuthorName = deletedAd.getAuthor().getEmail();
-        if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, deletedAdAuthorName)) {
+        if (VerificationService.isAdmin(authentication) || VerificationService.isOwner(authentication, deletedAdAuthorName)) {
             adRepository.delete(deletedAd);
             imageService.deleteImage(deletedImage);
         } else {
@@ -80,7 +80,7 @@ public class AdServiceImpl implements AdService {
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto newProperties, Authentication authentication) {
         Ad updatedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         String updatedAdAuthorName = updatedAd.getAuthor().getEmail();
-        if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, updatedAdAuthorName)) {
+        if (VerificationService.isAdmin(authentication) || VerificationService.isOwner(authentication, updatedAdAuthorName)) {
             Optional.ofNullable(newProperties.getPrice()).ifPresent(updatedAd::setPrice);
             Optional.ofNullable(newProperties.getTitle()).ifPresent(updatedAd::setTitle);
             Optional.ofNullable(newProperties.getDescription()).ifPresent(updatedAd::setDescription);
@@ -94,7 +94,7 @@ public class AdServiceImpl implements AdService {
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
         String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();
-        if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, adAuthorName)) {
+        if (VerificationService.isAdmin(authentication) || VerificationService.isOwner(authentication, adAuthorName)) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
             imageService.deleteImage(ad.getImage());
             try {
