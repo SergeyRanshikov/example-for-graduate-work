@@ -17,10 +17,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 @Slf4j
@@ -142,6 +144,9 @@ public class UserController {
     @PatchMapping("/me/image")
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
                                                 Authentication authentication) throws IOException {
+        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
+            throw new InvalidMediaTypeException();
+        }
         try {
             userService.updateUserImage(image, authentication);
             return ResponseEntity.ok().build();
