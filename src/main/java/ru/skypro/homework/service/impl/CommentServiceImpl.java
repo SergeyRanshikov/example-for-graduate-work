@@ -1,14 +1,12 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.surefire.shared.compress.harmony.unpack200.bytecode.BCIRenumberedAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.mapper.CommentMapper;
-import ru.skypro.homework.exception.AccessDeniedException;
 import ru.skypro.homework.exception.CommentNotFoundException;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Comment;
@@ -18,20 +16,28 @@ import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 import ru.skypro.homework.service.UserService;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+
     private final CommentRepository commentRepository;
     private final UserService userService;
     private final AdService adService;
 
-
+    /**
+     * Метод возвращает коллекцию всех комментариев у объявления, найденного по переданному идентификатору. <br>
+     * {@link CommentRepository#findByAdId(Integer)}
+     *
+     * @param id             идентификатор объявления
+     * @param authentication
+     * @return коллекцию комментариев в формате {@link CommentsDto}
+     */
     @Override
-    public CommentsDto getComments(Integer id, Authentication authentication) {
+    public CommentsDto getCommentsByAdId(Integer id, Authentication authentication) {
         if (authentication.isAuthenticated()) {
             List<CommentDto> allComments = commentRepository.findByAdId(id).stream()
                     .map(CommentMapper::commentToCommentDto)
@@ -42,6 +48,18 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    /**
+     * Метод добавляет комментарий к объявлению, найденному по переданному идентификатору,
+     * и сохраняет его в базу данных. <br>
+     * {@link CommentRepository#save(Object)}
+     * {@link AdService#getById(Integer)}
+     * {@link UserService#findByEmail(String)}
+     * {@link UserService#createUser(User)}
+     * @param id идентификатор объявления
+     * @param newComment новый комментарий
+     * @param authentication
+     * @return комментарий в формате {@link CommentDto}
+     */
     @Override
     public CommentDto addComment(Integer id, Authentication authentication, CreateOrUpdateCommentDto newComment) {
         if (authentication.isAuthenticated()) {
@@ -64,6 +82,18 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    /**
+     * Метод удаляет комментарий, найденный по переданному идентификатору,
+     * у объявления, найденного по переданному идентификатору. <br>
+     * {@link CommentRepository#findById(Object)}
+     * {@link CommentRepository#delete(Object)}
+     * {@link AdService#getById(Integer)}
+     * {@link VerificationService#isAdmin(Authentication)}
+     * {@link VerificationService#isOwner(Authentication, String)}
+     * @param adId идентификатор объявления
+     * @param commentId идентификатор комментария
+     * @param authentication
+     */
     @Override
     public void deleteComment(Integer adId, Integer commentId, Authentication authentication) {
         Comment commentToDelete = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
@@ -72,10 +102,25 @@ public class CommentServiceImpl implements CommentService {
             adService.getById(adId).getComments().remove(commentToDelete);
             commentRepository.delete(commentToDelete);
         } else {
-            throw new AccessDeniedException();
+            throw new RuntimeException();
         }
     }
 
+    /**
+     * Метод обновляет комментарий, найденный по переданному идентификатору,
+     * у объявления, найденного по переданному идентификатору. <br>
+     * {@link CommentRepository#findById(Object)}
+     * {@link CommentRepository#save(Object)}
+     * {@link AdService#getById(Integer)}
+     * {@link AdService#createAd(Ad)}
+     * {@link VerificationService#isAdmin(Authentication)}
+     * {@link VerificationService#isOwner(Authentication, String)}
+     * @param adId идентификатор объявления
+     * @param commentId идентификатор комментария
+     * @param comment новый комментарий
+     * @param authentication
+     * @return обновленный комментарий в формате {@link CommentDto}
+     */
     @Override
     public CreateOrUpdateCommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateCommentDto comment,
                                                   Authentication authentication) {
@@ -84,13 +129,13 @@ public class CommentServiceImpl implements CommentService {
         String commentAuthorName = commentToUpdate.getAuthor().getEmail();
         if (VerificationService.isAdmin(authentication) || VerificationService.isOwner(authentication, commentAuthorName)) {
             adToUpdate.getComments().remove(commentToUpdate);
-            commentToUpdate.setText(comment.getText());
+            Optional.ofNullable(comment.getText()).ifPresent(commentToUpdate::setText);
             adToUpdate.getComments().add(commentToUpdate);
             commentRepository.save(commentToUpdate);
             adService.createAd(adToUpdate);
             return CommentMapper.createOrUpdateDtoFromComment(commentToUpdate);
         } else {
-            throw new AccessDeniedException();
+            throw new RuntimeException();
         }
     }
 }

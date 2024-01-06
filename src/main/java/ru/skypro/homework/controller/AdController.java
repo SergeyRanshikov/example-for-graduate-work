@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.AdDto;
-import ru.skypro.homework.dto.AdsDto;
-import ru.skypro.homework.dto.CreateOrUpdateAdDto;
-import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.dto.*;
+import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.CommentService;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -28,8 +27,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RequestMapping("/ads")
 public class AdController {
-
     private final AdService adService;
+    private final CommentService commentService;
 
     @Operation(
             tags = "Объявления",
@@ -73,9 +72,13 @@ public class AdController {
     public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
                                        @RequestPart("image") MultipartFile image,
                                        Authentication authentication) throws IOException {
+        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
+            throw new InvalidMediaTypeException();
+        }
         adService.addAd(properties, image, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
 
     @Operation(
             tags = "Объявления",
@@ -102,8 +105,8 @@ public class AdController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAdDto> getAdById(@PathVariable("id") Integer id, Authentication authentication) {
-        return ResponseEntity.ok(adService.getAdById(id, authentication));
+    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id, Authentication authentication) {
+        return ResponseEntity.ok(adService.getAds(id, authentication));
     }
 
     @Operation(
@@ -133,9 +136,9 @@ public class AdController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAd(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id, Authentication authentication) {
         try {
-            adService.deleteAd(id, authentication);
+            adService.removeAd(id, authentication);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -171,7 +174,7 @@ public class AdController {
             }
     )
     @PatchMapping("/{id}")
-    public ResponseEntity<AdDto> updateAd(@PathVariable("id") Integer id,
+    public ResponseEntity<AdDto> updateAds(@PathVariable("id") Integer id,
                                            @RequestBody CreateOrUpdateAdDto ad, Authentication authentication) {
         try {
             return ResponseEntity.ok(adService.updateAd(id, ad, authentication));
@@ -230,10 +233,13 @@ public class AdController {
                     )
             }
     )
-    @PatchMapping("/{id}/image")
+    @PatchMapping(value = "/{id}/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
                                             @RequestBody MultipartFile image,
                                             Authentication authentication) throws IOException {
+        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
+            throw new InvalidMediaTypeException();
+        }
         try {
             adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();

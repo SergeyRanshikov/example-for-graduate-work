@@ -1,29 +1,26 @@
 package ru.skypro.homework.controller;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import ru.skypro.homework.dto.UpdateUserDto;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.service.UserService;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;
-
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -31,7 +28,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-
     private final UserService userService;
 
     @Operation(
@@ -95,7 +91,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
     @Operation(
             tags = "Пользователи",
             summary = "Обновление информации об авторизованном пользователе",
@@ -124,7 +119,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
     @Operation(
             tags = "Пользователи",
             summary = "Обновление аватара авторизованного пользователя",
@@ -141,7 +135,7 @@ public class UserController {
                     )
             }
     )
-    @PatchMapping("/me/image")
+    @PatchMapping(value = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
                                                 Authentication authentication) throws IOException {
         if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {

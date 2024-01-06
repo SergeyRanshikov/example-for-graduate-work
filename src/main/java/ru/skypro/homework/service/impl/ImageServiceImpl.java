@@ -33,9 +33,4 @@ public class ImageServiceImpl implements ImageService {
     public Image getById(Integer id) {
         return imageRepository.findById(id).orElseThrow(ImageNotFoundException::new);
     }
-
-    @Override
-    public Image findById(Integer id) {
-        return imageRepository.findById(id).orElseThrow(ImageNotFoundException::new);
-    }
-}
+   }

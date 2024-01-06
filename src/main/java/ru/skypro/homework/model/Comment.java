@@ -1,14 +1,12 @@
 package ru.skypro.homework.model;
 
-import liquibase.pro.packaged.I;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -27,4 +25,32 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "ad_id")
     private Ad ad;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Comment comment = (Comment) o;
+        return Objects.equals(id, comment.id)
+                && Objects.equals(text, comment.text)
+                && Objects.equals(createdAt, comment.createdAt)
+                && Objects.equals(author, comment.author)
+                && Objects.equals(ad, comment.ad);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, text, createdAt, author, ad);
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", text='" + text + '\'' +
+                ", createdAt=" + createdAt +
+                ", author=" + author +
+                ", ad=" + ad +
+                '}';
+    }
 }

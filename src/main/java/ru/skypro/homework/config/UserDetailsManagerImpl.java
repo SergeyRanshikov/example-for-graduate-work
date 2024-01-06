@@ -42,7 +42,7 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
         user.setEmail(registerDto.getUsername());
         user.setFirstName(registerDto.getFirstName());
         user.setLastName(registerDto.getLastName());
-        user.setPhone(registerDto.getPhone());
+        user.setPhoneNumber(registerDto.getPhone());
         user.setRole(registerDto.getRole());
         userRepository.save(user);
     }

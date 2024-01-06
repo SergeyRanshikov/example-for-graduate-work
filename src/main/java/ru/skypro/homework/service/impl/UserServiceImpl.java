@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         Optional.ofNullable(newProperties.getFirstName()).ifPresent(updatedUser::setFirstName);
         Optional.ofNullable(newProperties.getLastName()).ifPresent(updatedUser::setLastName);
-        Optional.ofNullable(newProperties.getPhone()).ifPresent(updatedUser::setPhone);
+        Optional.ofNullable(newProperties.getPhone()).ifPresent(updatedUser::setPhoneNumber);
         userRepository.save(updatedUser);
         return UserMapper.userToUserDto(updatedUser);
     }

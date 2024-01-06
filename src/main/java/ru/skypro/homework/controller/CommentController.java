@@ -1,21 +1,25 @@
 package ru.skypro.homework.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.service.CommentService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -23,43 +27,7 @@ import ru.skypro.homework.service.CommentService;
 @RequiredArgsConstructor
 @RequestMapping("/ads")
 public class CommentController {
-
     private final CommentService commentService;
-
-
-        @Operation(
-                tags = "Комментарии",
-                summary = "Получение комментариев объявления, найденного по переданному идентификатору",
-                responses = {
-                        @ApiResponse(
-                                responseCode = "200",
-                                description = "Коллекция всех комментариев объявления",
-                                content = @Content(
-                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                        schema = @Schema(implementation = CommentsDto.class)
-                                )
-                        ),
-                        @ApiResponse(
-                                responseCode = "401",
-                                description = "Пользователь не авторизован",
-                                content = @Content()
-                        ),
-                        @ApiResponse(
-                                responseCode = "404",
-                                description = "Объявления с переданным идентификатором не существует в базе данных",
-                                content = @Content()
-                        )
-                }
-        )
-        @GetMapping("/{id}/comments")
-        public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
-                Authentication authentication) {
-            try {
-                return ResponseEntity.ok(commentService.getComments(id, authentication));
-            } catch (HttpClientErrorException.NotFound e) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        }
 
     @Operation(
             tags = "Комментарии",
@@ -97,6 +65,40 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+                @Operation(
+                    tags = "Комментарии",
+                    summary = "Получение комментариев объявления, найденного по переданному идентификатору",
+                    responses = {
+                            @ApiResponse(
+                                    responseCode = "200",
+                                    description = "Коллекция всех комментариев объявления",
+                                    content = @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = CommentsDto.class)
+                                    )
+                            ),
+                            @ApiResponse(
+                                    responseCode = "401",
+                                    description = "Пользователь не авторизован",
+                                    content = @Content()
+                            ),
+                            @ApiResponse(
+                                    responseCode = "404",
+                                    description = "Объявления с переданным идентификатором не существует в базе данных",
+                                    content = @Content()
+                            )
+                    }
+            )
+            @GetMapping("/{id}/comments")
+            public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
+                                                           Authentication authentication) {
+                try {
+                    return ResponseEntity.ok(commentService.getCommentsByAdId(id, authentication));
+                } catch (HttpClientErrorException.NotFound e) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                }
+            }
 
     @Operation(
             tags = "Комментарии",

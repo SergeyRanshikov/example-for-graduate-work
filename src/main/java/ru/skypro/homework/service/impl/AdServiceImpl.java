@@ -55,7 +55,7 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
-    public ExtendedAdDto getAdById(Integer id, Authentication authentication) {
+    public ExtendedAdDto getAds(Integer id, Authentication authentication) {
         if (authentication.isAuthenticated()) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
             return AdMapper.adToExtendedAdDto(ad);
@@ -64,9 +64,9 @@ public class AdServiceImpl implements AdService {
         }
     }
     @Override
-    public void deleteAd(Integer id, Authentication authentication) {
+    public void removeAd(Integer id, Authentication authentication) {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-        Image deletedImage = imageService.findById(deletedAd.getImage().getId());
+        Image deletedImage = imageService.getById(deletedAd.getImage().getId());
         String deletedAdAuthorName = deletedAd.getAuthor().getEmail();
         if (VerificationService.isAdmin(authentication) || VerificationService.isOwner(authentication, deletedAdAuthorName)) {
             adRepository.delete(deletedAd);
