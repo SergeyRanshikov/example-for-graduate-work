@@ -153,12 +153,13 @@ public class AdServiceImpl implements AdService {
         String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();
         if (VerificationService.isAdmin(authentication) || VerificationService.isOwner(authentication, adAuthorName)) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-            imageService.deleteImage(ad.getImage());
+            Image oldImage = ad.getImage();
             try {
                 Image newImage = imageService.saveToDataBase(image);
                 ad.setImage(newImage);
                 ad.setImageUrl("/images/" + newImage.getId());
                 adRepository.save(ad);
+                imageService.deleteImage(oldImage);
             } catch (IOException e) {
                 log.error(e.getMessage());
             }

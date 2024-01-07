@@ -56,12 +56,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         Image usersImage = user.getImage();
         Image newImage = imageService.saveToDataBase(image);
-        if (user.getImage() != null) {
-            imageService.deleteImage(usersImage);
-        }
         user.setImage(newImage);
         user.setImageUrl("/images/" + newImage.getId());
         userRepository.save(user);
+        if (user.getImage() != null) {
+            imageService.deleteImage(usersImage);
+        }
     }
 
     @Override
